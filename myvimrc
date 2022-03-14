@@ -83,9 +83,9 @@ fu! CreateInheritanceHpp(name, herit)
 	execute "silent! :%s/".a:herit."/". a:name ."/g"
 	execute 'silent! normal gg11dj\fdd'
 	execute "silent! :g/^#include/d"
-	execute 'silent! normal gg15jo#include "'.a:herit.'.hpp"'
-	execute 'silent! normal o'
-	execute 'silent! normal gg18jccclass '.a:name.' : public '.a:herit.' {' 
+	execute "silent! :g/^#define/d"
+	execute 'silent! normal gg14jo#include "'.a:herit.'.hpp"'
+	execute 'silent! normal gg17jccclass '.a:name.' : public '.a:herit.' {' 
 endf
 
 fu! CreateInheritanceClass()
