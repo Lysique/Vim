@@ -82,7 +82,10 @@ fu! CreateInheritanceHpp(name, herit)
 	execute "silent! :%s/".toupper(a:herit)."_HPP/". toupper(a:name) ."_HPP/g"
 	execute "silent! :%s/".a:herit."/". a:name ."/g"
 	execute 'silent! normal gg11dj\fdd'
-	execute 'silent! normal gg17j$i: public '.a:herit
+	execute 'silent! normal gg15jddi#include "'.a:herit.'.hpp"'
+	execute 'silent! normal o'
+	execute 'silent! normal jddiclass '.a:name.' : public '.a:herit.' {' 
+	execute 'silent! normal o'
 endf
 
 fu! CreateInheritanceClass()
