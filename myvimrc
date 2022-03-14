@@ -1,0 +1,101 @@
+
+"Basics
+
+set ruler
+set noerrorbells
+set nowrap
+set rnu
+set nu
+set path+=**
+syntax on
+
+"Advanced
+
+autocmd TextChanged,TextChangedI <buffer> silent write
+
+set splitright
+set splitbelow
+
+nmap <Up> <Esc>
+nmap <Down> <Esc>
+nmap <Right> <Esc>
+nmap <Left> <Esc>
+nmap <silent><CR> :noh<CR>
+nmap <silent>\v :source ~/.vimrc<CR>
+
+"Creating cpp class"
+
+nmap \f <F1>
+
+fu! CreateCpp(name)
+	execute "silent! e ./". a:name . ".cpp"
+	execute "silent! read ~/.vim/templates/Class.cpp"
+	execute "silent! :%s/CLASS/". a:name ."/g"
+	execute 'silent! normal \fhgg11jdd'
+endf
+
+fu! CreateHpp(name)
+	execute "silent! e ./". a:name . ".hpp"
+	execute "silent! read ~/.vim/templates/Class.hpp"
+	execute "silent! :%s/CLASS_HPP/". toupper(a:name) ."_HPP/g"
+	execute "silent! :%s/CLASS/". a:name ."/g"
+	execute 'silent! normal \fgg11jdd'
+endf
+
+fu! CreateClass()
+	call inputsave()
+	let name = input('Class Name : ')
+	call inputrestore()
+	call CreateCpp(name)
+	call CreateHpp(name)
+	execute "silent! :vsp ". name. ".cpp"
+endf
+
+nmap \C :call CreateClass()<CR>
+
+"Creating Makefile
+
+nmap \M :call CreateMakefile()<CR>
+
+fu! CreateMakefile()
+	call inputsave()
+	let name = input('Executable Name : ')
+	call inputrestore()
+	execute "silent! e ./Makefile"
+	execute "silent! read ~/.vim/templates/Makefile"
+	execute "silent! :%s/{name}/". name ."/g"
+	execute 'silent! normal \fgg11jdd'
+endf
+
+"Creating InheritanceClass()
+
+fu! CreateInheritanceCpp(name, herit)
+	execute "silent! e ./". a:name . ".cpp"
+	execute "silent! read ./".a:herit.".cpp" 
+	execute "silent! :%s/".a:herit."/". a:name ."/g"
+	execute 'silent! normal gg11dj\fdd'
+endf
+
+fu! CreateInheritanceHpp(name, herit)
+	execute "silent! e ./". a:name .".hpp"
+	execute "silent! read ./".a:herit.".hpp" 
+	execute "silent! :%s/".toupper(a:herit)."_HPP/". toupper(a:name) ."_HPP/g"
+	execute "silent! :%s/".a:herit."/". a:name ."/g"
+	execute 'silent! normal gg11dj\fdd'
+	execute 'silent! normal gg17j$i: public '.a:herit
+endf
+
+fu! CreateInheritanceClass()
+	execute "silent! :vsp"
+	call inputsave()
+	let name = input('Class Name : ')
+	call inputrestore()
+	call inputsave()
+	let herit = input('Herit From : ')
+	call inputrestore()
+	call CreateInheritanceCpp(name, herit)
+	call CreateInheritanceHpp(name, herit)
+	execute "silent! :vsp ". name. ".cpp"
+endf
+
+nmap \I :call CreateInheritanceClass()<CR>
