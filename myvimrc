@@ -48,7 +48,9 @@ fu! CreateClass()
 	call inputrestore()
 	call CreateCpp(name)
 	call CreateHpp(name)
+	execute "silent! :w"
 	execute "silent! :vsp ". name. ".cpp"
+	execute "silent! :w"
 endf
 
 nmap \C :call CreateClass()<CR>
@@ -66,39 +68,3 @@ fu! CreateMakefile()
 	execute "silent! :%s/{name}/". name ."/g"
 	execute 'silent! normal \fgg11jdd'
 endf
-
-"Creating InheritanceClass()
-
-fu! CreateInheritanceCpp(name, herit)
-	execute "silent! e ./". a:name . ".cpp"
-	execute "silent! read ./".a:herit.".cpp" 
-	execute "silent! :%s/".a:herit."/". a:name ."/g"
-	execute 'silent! normal gg11dj\fdd'
-endf
-
-fu! CreateInheritanceHpp(name, herit)
-	execute "silent! e ./". a:name .".hpp"
-	execute "silent! read ./".a:herit.".hpp" 
-	execute "silent! :%s/".toupper(a:herit)."_HPP/". toupper(a:name) ."_HPP/g"
-	execute "silent! :%s/".a:herit."/". a:name ."/g"
-	execute 'silent! normal gg11dj\fdd'
-	execute "silent! :g/^#include/d"
-	execute "silent! :g/^#define/d"
-	execute 'silent! normal gg14jo#include "'.a:herit.'.hpp"'
-	execute 'silent! normal gg17jccclass '.a:name.' : public '.a:herit.' {' 
-endf
-
-fu! CreateInheritanceClass()
-	execute "silent! :vsp"
-	call inputsave()
-	let name = input('Class Name : ')
-	call inputrestore()
-	call inputsave()
-	let herit = input('Herit From : ')
-	call inputrestore()
-	call CreateInheritanceCpp(name, herit)
-	call CreateInheritanceHpp(name, herit)
-	execute "silent! :vsp ". name. ".cpp"
-endf
-
-nmap \I :call CreateInheritanceClass()<CR>
