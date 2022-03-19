@@ -6,7 +6,6 @@ set noerrorbells
 set nowrap
 set rnu
 set nu
-set path+=**
 syntax on
 
 "Advanced
@@ -15,27 +14,44 @@ autocmd TextChanged,TextChangedI <buffer> silent write
 
 set splitright
 set splitbelow
+set path+=**
+let mapleader = " "
 
+nmap H Hzz
+nmap L Lzz
 nmap <Up> <Esc>
 nmap <Down> <Esc>
 nmap <Right> <Esc>
 nmap <Left> <Esc>
 nmap <silent><CR> :noh<CR>
 nmap <silent>\v :source ~/.vimrc<CR>
+nmap <leader>f :find 
+nmap <leader>w :w<CR>
+
+"for loop cpp"
+
+fu!	ForLoop()
+	call inputsave()
+	let iter = input("for (int i = 0; ")
+	call inputrestore()
+	execute "silent! normal i	for (int i = 0; ".iter."; i++)"
+endf
+
+nmap \F :call ForLoop()<CR>
 
 "Creating cpp class"
 
 nmap \f <F1>
 
 fu! CreateCpp(name)
-	execute "silent! e ./". a:name . ".cpp"
+	execute "silent! vsp ./srcs/". a:name . ".cpp"
 	execute "silent! read ~/.vim/templates/Class.cpp"
-	execute "silent! :%s/CLASS/". a:name ."/g"
+	execute "silent! %s/CLASS/". a:name ."/g"
 	execute 'silent! normal \fhgg11jdd'
 endf
 
 fu! CreateHpp(name)
-	execute "silent! e ./". a:name . ".hpp"
+	execute "silent! vsp ./includes/". a:name . ".hpp"
 	execute "silent! read ~/.vim/templates/Class.hpp"
 	execute "silent! :%s/CLASS_HPP/". toupper(a:name) ."_HPP/g"
 	execute "silent! :%s/CLASS/". a:name ."/g"
@@ -48,12 +64,25 @@ fu! CreateClass()
 	call inputrestore()
 	call CreateCpp(name)
 	call CreateHpp(name)
-	execute "silent! :w"
-	execute "silent! :vsp ". name. ".cpp"
-	execute "silent! :w"
 endf
 
+fu! InterfaceTemplate(name)
+	execute "silent! vsp ./includes/". a:name . ".hpp"
+	execute "silent! read ~/.vim/templates/Interface.hpp"
+	execute "silent! :%s/CLASS_HPP/". toupper(a:name) ."_HPP/g"
+	execute "silent! :%s/CLASS/". a:name ."/g"
+	execute 'silent! normal \fgg11jdd'
+endf
+
+fu! CreateInterface()
+	call inputsave()
+	let name = input('Interface Name : ')
+	call inputrestore()
+	call InterfaceTemplate(name)
+endf	
+
 nmap \C :call CreateClass()<CR>
+nmap \I :call CreateInterface()<CR>
 
 "Creating Makefile
 
@@ -63,35 +92,63 @@ fu! CreateMakefile()
 	call inputsave()
 	let name = input('Executable Name : ')
 	call inputrestore()
-	execute "silent! e ./Makefile"
+	execute "silent! :vsp ./Makefile"
 	execute "silent! read ~/.vim/templates/Makefile"
 	execute "silent! :%s/{name}/". name ."/g"
 	execute 'silent! normal \fgg11jdd'
 endf
 
+"Add to Makefile"
+
+nmap \mC :call AddToMakefile()<CR>
+nmap \mI :call AddInterfaceToMakefile()<CR>
+
+fu! AddToMakefile()
+	call inputsave()
+	let name = input("Class to add : ")
+	call inputrestore()
+	execute "silent! vsp ./Makefile"
+	execute "silent! /FILES ="
+	execute "silent! normal A ".name.".cpp"
+	execute "silent! /HEADERS ="
+	execute "silent! normal A ".name.".hpp"
+	execute "silent! q"
+endf
+
+fu! AddInterfaceToMakefile()
+	call inputsave()
+	let name = input("Interface to add : ")
+	call inputrestore()
+	execute "silent! :vsp ./Makefile"
+	execute "silent! /HEADERS ="
+	execute "silent! normal A ".name.".hpp"
+	execute "silent! q"
+endf
+
 "Creating InheritanceClass()
 
 fu! CreateInheritanceCpp(name, herit)
-	execute "silent! e ./". a:name . ".cpp"
-	execute "silent! read ./".a:herit.".cpp" 
+	execute "silent! vsp ./srcs/". a:name . ".cpp"
+	execute "silent! read ./srcs/".a:herit.".cpp" 
 	execute "silent! :%s/".a:herit."/". a:name ."/g"
 	execute 'silent! normal gg11dj\fdd'
 endf
 
 fu! CreateInheritanceHpp(name, herit)
-	execute "silent! e ./". a:name .".hpp"
-	execute "silent! read ./".a:herit.".hpp" 
+	execute "silent! vsp ./includes/". a:name .".hpp"
+	execute "silent! read ./includes/".a:herit.".hpp" 
 	execute "silent! :%s/".toupper(a:herit)."_HPP/". toupper(a:name) ."_HPP/g"
 	execute "silent! :%s/".a:herit."/". a:name ."/g"
 	execute 'silent! normal gg11dj\fdd'
 	execute "silent! :g/^#include/d"
 	execute "silent! :g/^#define/d"
-	execute 'silent! normal gg14jo#include "'.a:herit.'.hpp"'
-	execute 'silent! normal gg17jccclass '.a:name.' : public '.a:herit.' {' 
+	execute "silent! /class ".a:herit
+	execute 'silent! normal jccclass '.a:name.' : public '.a:herit.' {' 
+	execute 'silent! normal 2ko#include "'.a:herit.'.hpp"'
+	execute 'silent! :%s/ = 0//g'
 endf
 
 fu! CreateInheritanceClass()
-	execute "silent! :vsp"
 	call inputsave()
 	let name = input('Class Name : ')
 	call inputrestore()
@@ -100,8 +157,6 @@ fu! CreateInheritanceClass()
 	call inputrestore()
 	call CreateInheritanceCpp(name, herit)
 	call CreateInheritanceHpp(name, herit)
-	execute "silent! :vsp ". name. ".cpp"
 endf
 
-nmap \I :call CreateInheritanceClass()<CR>
-
+nmap \H :call CreateInheritanceClass()<CR>
